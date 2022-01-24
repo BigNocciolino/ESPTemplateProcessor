@@ -109,6 +109,7 @@ class ESPTemplateProcessor {
         if(!silentSerial) {
           Serial.print("Failed to process '"); Serial.print(filePath); Serial.println("': Didn't reach the end of the file.");
         }
+        return false;
       }
     }
 
