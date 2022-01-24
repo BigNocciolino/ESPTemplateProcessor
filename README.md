@@ -14,14 +14,14 @@ This library is designed to work with the [ESP8266 Arduino SDK](https://github.c
 
 2. Upload your templates to SPIFFS. There is are instruction to do so [HERE](https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system).
 
-3. Include the library, call `SPIFFS.begin()` and setup a handler.
+3. Include the library, call `LittleFS.begin()` and setup a handler.
     ```C++
     #include "ESPTemplateProcessor.h"
 
     ...
 
     void setup(void){
-      SPIFFS.begin();
+      LittleFS.begin();
 
       ...
 
