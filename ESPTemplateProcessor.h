@@ -8,7 +8,16 @@
 #include <WebServer.h>
 #endif
 
+#define USE_LittleFS
+
+// Move to little fs
 #include <FS.h>
+#ifdef USE_LittleFS
+  #define SPIFFS LITTLEFS
+  #include <LittleFS.h>
+#else
+  #include <SPIFFS.h>
+#endif
 
 #ifdef ESP32
 #include <SPIFFS.h>
