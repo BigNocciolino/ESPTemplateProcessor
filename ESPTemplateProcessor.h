@@ -2,25 +2,26 @@
 #define ESP_TEMPLATE_PROCESSOR_H
 
 #ifdef ESP8266
-#define WebServer ESP8266WebServer
-#include <ESP8266WebServer.h>
+  #define WebServer ESP8266WebServer
+  #include <ESP8266WebServer.h>
 #else
-#include <WebServer.h>
+  #include <WebServer.h>
 #endif
 
-#define USE_LittleFS
+// Comment this line to use SPIFSS
+#define USE_LITTLEFS
+
+// Uncomment this line to enable serial debug
+//#define ESP_TEMPLATE_PROCESSOR_DEBUG
+
+#include <FS.h>
 
 // Move to little fs
-#include <FS.h>
-#ifdef USE_LittleFS
-  #define SPIFFS LITTLEFS
+#ifdef USE_LITTLEFS
+  #define SPIFFS LittleFS
   #include <LittleFS.h>
 #else
   #include <SPIFFS.h>
-#endif
-
-#ifdef ESP32
-#include <SPIFFS.h>
 #endif
 
 typedef String ProcessorCallback(const String& key);
@@ -32,21 +33,21 @@ class ESPTemplateProcessor {
     {
     }
 
-    bool send(const String& filePath, ProcessorCallback& processor, char bookend = '%', bool silentSerial = false)
+    bool send(const String& filePath, ProcessorCallback& processor, char bookend = '%')
     {
       // Open file.
       if(!SPIFFS.exists(filePath)) {
-        if(!silentSerial) {
+        #ifdef ESP_TEMPLATE_PROCESSOR_DEBUG
           Serial.print("Cannot process "); Serial.print(filePath); Serial.println(": Does not exist.");
-        }
+        #endif
         return false;
       }
 
       File file = SPIFFS.open(filePath, "r");
       if (!file) {
-        if(!silentSerial) {
+        #ifdef ESP_TEMPLATE_PROCESSOR_DEBUG
           Serial.print("Cannot process "); Serial.print(filePath); Serial.println(": Failed to open.");
-        }
+        #endif
         return false;
       }
 
@@ -87,17 +88,17 @@ class ESPTemplateProcessor {
           
           // Check for bad exit.
           if (val == -1 && !found) {
-            if(!silentSerial) {
+            #ifdef ESP_ESP_TEMPLATE_PROCESSOR_DEBUG
               Serial.print("Cannot process "); Serial.print(filePath); Serial.println(": Unable to parse.");
-            }
+            #endif
             return false;
           }
 
           // Get substitution
           String processed = processor(keyBuffer);
-          if(!silentSerial) {
+          #ifdef ESP_ESP_ESP_TEMPLATE_PROCESSOR_DEBUG
             Serial.print("Lookup '"); Serial.print(keyBuffer); Serial.print("' received: "); Serial.println(processed);
-          }
+          #endif
           server.sendContent(processed);
         } else {
           bufferLen++;
@@ -115,9 +116,9 @@ class ESPTemplateProcessor {
         server.sendContent("");
         return true;
       } else {
-        if(!silentSerial) {
+        #ifdef ESP_ESP_TEMPLATE_PROCESSOR_DEBUG
           Serial.print("Failed to process '"); Serial.print(filePath); Serial.println("': Didn't reach the end of the file.");
-        }
+        #endif
         return false;
       }
     }
